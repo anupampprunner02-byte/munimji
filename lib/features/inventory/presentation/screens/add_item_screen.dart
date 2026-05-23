@@ -94,7 +94,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         'taxRate': double.tryParse(_taxRate) ?? 0,
         'isTaxInclusive': _isTaxInclusive,
         'isService': _isService,
-        if (!_isService) ...[
+        if (!_isService) ...{
           'openingStock': double.tryParse(_openingStockCtrl.text) ?? 0,
           if (_lowStockAlertCtrl.text.isNotEmpty)
             'lowStockAlert': double.tryParse(_lowStockAlertCtrl.text),
@@ -102,7 +102,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
             'reorderPoint': double.tryParse(_reorderPointCtrl.text),
           'trackBatch': _trackBatch,
           'trackSerial': _trackSerial,
-        ],
+        },
         if (_descriptionCtrl.text.isNotEmpty)
           'description': _descriptionCtrl.text.trim(),
       });

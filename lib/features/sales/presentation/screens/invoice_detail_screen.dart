@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -279,7 +280,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
     }
   }
 
-  Future<List<int>> _buildPdf(InvoiceDetail inv) async {
+  Future<Uint8List> _buildPdf(InvoiceDetail inv) async {
     final doc = pw.Document();
     doc.addPage(
       pw.Page(

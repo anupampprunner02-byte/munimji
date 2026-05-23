@@ -512,7 +512,7 @@ class _ExpenseBarChart extends StatelessWidget {
           maxY: maxAmount * 1.2,
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
-              tooltipBgColor: AppColors.textPrimary.withOpacity(0.85),
+              getTooltipColor: (_) => AppColors.textPrimary.withOpacity(0.85),
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 final cat = categories[groupIndex];
                 return BarTooltipItem(
@@ -649,7 +649,7 @@ class _MonthlyLineChart extends StatelessWidget {
               maxY: maxY,
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
-                  tooltipBgColor:
+                  getTooltipColor: (_) =>
                       AppColors.textPrimary.withOpacity(0.85),
                   getTooltipItems: (spots) => spots.map((s) {
                     final idx = s.x.toInt();
