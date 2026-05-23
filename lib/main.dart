@@ -19,16 +19,16 @@ void main() async {
     statusBarIconBrightness: Brightness.light,
   ));
 
-  runApp(const ProviderScope(child: VyaparApp()));
+  runApp(const ProviderScope(child: MunimJiApp()));
 }
 
-class VyaparApp extends ConsumerWidget {
-  const VyaparApp({super.key});
+class MunimJiApp extends ConsumerWidget {
+  const MunimJiApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
-      title: 'Vyapar',
+      title: 'MunimJi',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,

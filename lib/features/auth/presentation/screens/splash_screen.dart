@@ -85,7 +85,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'VYAPAR',
+                  'MUNIMJI',
                   style: TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.w800,

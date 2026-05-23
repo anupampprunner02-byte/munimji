@@ -1,4 +1,4 @@
-package com.vyapar.app
+package com.munimji.app
 
 import io.flutter.embedding.android.FlutterActivity
 

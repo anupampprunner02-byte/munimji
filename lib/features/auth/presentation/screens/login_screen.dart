@@ -110,7 +110,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   size: 64, color: AppColors.primary),
               const SizedBox(height: 16),
               const Text(
-                'VYAPAR',
+                'MUNIMJI',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,

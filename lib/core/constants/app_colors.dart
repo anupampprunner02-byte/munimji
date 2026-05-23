@@ -4,7 +4,7 @@ class AppColors {
   AppColors._();
 
   // Brand
-  static const primary = Color(0xFF1565C0);       // Deep Blue (Vyapar brand)
+  static const primary = Color(0xFF1565C0);       // Deep Blue (MunimJi brand)
   static const primaryLight = Color(0xFF1976D2);
   static const primaryDark = Color(0xFF0D47A1);
   static const accent = Color(0xFF00897B);         // Teal accent

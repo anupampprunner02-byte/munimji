@@ -1,7 +1,7 @@
 class AppStrings {
   AppStrings._();
 
-  static const appName = 'Vyapar';
+  static const appName = 'MunimJi';
   static const appTagline = 'Smart Business Accounting';
 
   // Auth

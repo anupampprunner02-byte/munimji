@@ -1,4 +1,4 @@
-name: Build Vyapar APK
+name: Build MunimJi APK
 
 on:
   push:
@@ -37,13 +37,13 @@ jobs:
         run: flutter build apk --release --no-tree-shake-icons
 
       - name: Rename APK
-        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/vyapar-release.apk
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/munimji-release.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vyapar-apk
-          path: build/app/outputs/flutter-apk/vyapar-release.apk
+          name: munimji-apk
+          path: build/app/outputs/flutter-apk/munimji-release.apk
           retention-days: 30
 
       - name: Show APK info
