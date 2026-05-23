@@ -87,7 +87,7 @@ class _CreateBusinessScreenState extends ConsumerState<CreateBusinessScreen> {
     ref.read(_createBusinessLoadingProvider.notifier).state = true;
     try {
       final api = ref.read(apiClientProvider);
-      final resp = await api.post('/api/businesses', data: {
+      final data = await api.post('/api/businesses', data: {
         'name': _nameCtrl.text.trim(),
         'legalName': _legalNameCtrl.text.trim(),
         'gstin': _gstinCtrl.text.trim().toUpperCase(),
@@ -100,7 +100,6 @@ class _CreateBusinessScreenState extends ConsumerState<CreateBusinessScreen> {
         'phone': _phoneCtrl.text.trim(),
         'email': _emailCtrl.text.trim(),
       });
-      final data = resp.data as Map<String, dynamic>;
       final businessId = data['id']?.toString() ?? data['business']?['id']?.toString();
       if (businessId != null) {
         const storage = FlutterSecureStorage();

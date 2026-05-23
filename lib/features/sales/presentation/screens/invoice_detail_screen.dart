@@ -175,8 +175,7 @@ class PaymentRecord {
 final invoiceDetailProvider =
     FutureProvider.family<InvoiceDetail, String>((ref, id) async {
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/invoices/$id');
-  return InvoiceDetail.fromJson(resp.data as Map<String, dynamic>);
+  return InvoiceDetail.fromJson(await api.get('/api/invoices/$id'));
 });
 
 // ---------------------------------------------------------------------------

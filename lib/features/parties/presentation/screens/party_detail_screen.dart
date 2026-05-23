@@ -92,15 +92,13 @@ class LedgerEntry {
 final partyDetailProvider =
     FutureProvider.family<PartyDetail, String>((ref, id) async {
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/parties/$id');
-  return PartyDetail.fromJson(resp.data as Map<String, dynamic>);
+  return PartyDetail.fromJson(await api.get('/api/parties/$id'));
 });
 
 final partyLedgerProvider =
     FutureProvider.family<List<LedgerEntry>, String>((ref, id) async {
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/parties/$id/ledger');
-  final data = resp.data as Map<String, dynamic>;
+  final data = await api.get('/api/parties/$id/ledger');
   final list = data['data'] as List<dynamic>? ?? [];
   return list
       .map((e) => LedgerEntry.fromJson(e as Map<String, dynamic>))
@@ -110,9 +108,8 @@ final partyLedgerProvider =
 final partyInvoicesProvider =
     FutureProvider.family<List<Map<String, dynamic>>, String>((ref, id) async {
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/invoices',
+  final data = await api.get('/api/invoices',
       queryParameters: {'partyId': id, 'limit': 50});
-  final data = resp.data as Map<String, dynamic>;
   return (data['data'] as List<dynamic>?)
           ?.map((e) => e as Map<String, dynamic>)
           .toList() ??
@@ -122,9 +119,8 @@ final partyInvoicesProvider =
 final partyPaymentsProvider =
     FutureProvider.family<List<Map<String, dynamic>>, String>((ref, id) async {
   final api = ref.read(apiClientProvider);
-  final resp =
+  final data =
       await api.get('/api/payments', queryParameters: {'partyId': id});
-  final data = resp.data as Map<String, dynamic>;
   return (data['data'] as List<dynamic>?)
           ?.map((e) => e as Map<String, dynamic>)
           .toList() ??

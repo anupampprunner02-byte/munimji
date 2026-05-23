@@ -42,7 +42,7 @@ final appRouter = GoRouter(
     GoRoute(path: '/parties', builder: (ctx, state) => const PartyListScreen()),
     GoRoute(
       path: '/parties/add',
-      builder: (ctx, state) => AddPartyScreen(initialType: state.extra as String?),
+      builder: (ctx, state) => const AddPartyScreen(),
     ),
     GoRoute(
       path: '/parties/:id',
@@ -54,7 +54,7 @@ final appRouter = GoRouter(
     GoRoute(path: '/items/add', builder: (ctx, state) => const AddItemScreen()),
     GoRoute(
       path: '/items/:id/edit',
-      builder: (ctx, state) => AddItemScreen(itemId: state.pathParameters['id']),
+      builder: (ctx, state) => const AddItemScreen(),
     ),
 
     // Reports

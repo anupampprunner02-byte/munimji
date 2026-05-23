@@ -74,8 +74,8 @@ class ApiClient {
     );
   }
 
-  Future<Map<String, dynamic>> get(String path, {Map<String, dynamic>? params}) async {
-    final res = await dio.get(path, queryParameters: params);
+  Future<Map<String, dynamic>> get(String path, {Map<String, dynamic>? queryParameters}) async {
+    final res = await dio.get(path, queryParameters: queryParameters);
     return res.data as Map<String, dynamic>;
   }
 
@@ -86,6 +86,11 @@ class ApiClient {
 
   Future<Map<String, dynamic>> put(String path, {dynamic data}) async {
     final res = await dio.put(path, data: data);
+    return res.data as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> patch(String path, {dynamic data}) async {
+    final res = await dio.patch(path, data: data);
     return res.data as Map<String, dynamic>;
   }
 

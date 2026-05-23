@@ -80,19 +80,17 @@ class _LowStockItem {
 final _dashboardSummaryProvider =
     FutureProvider<_DashboardSummary>((ref) async {
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/dashboard/summary');
-  return _DashboardSummary.fromJson(resp.data as Map<String, dynamic>);
+  return _DashboardSummary.fromJson(await api.get('/api/dashboard/summary'));
 });
 
 final _recentInvoicesProvider =
     FutureProvider<List<_RecentInvoice>>((ref) async {
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/invoices', queryParameters: {
+  final data = await api.get('/api/invoices', queryParameters: {
     'limit': 5,
     'sortBy': 'date',
     'order': 'desc',
   });
-  final data = resp.data as Map<String, dynamic>;
   final list = data['data'] as List<dynamic>? ?? [];
   return list
       .map((e) => _RecentInvoice.fromJson(e as Map<String, dynamic>))
@@ -101,8 +99,7 @@ final _recentInvoicesProvider =
 
 final _profileProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/auth/me');
-  return resp.data as Map<String, dynamic>;
+  return await api.get('/api/auth/me');
 });
 
 // ---------------------------------------------------------------------------

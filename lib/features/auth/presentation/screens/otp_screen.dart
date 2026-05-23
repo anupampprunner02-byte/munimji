@@ -63,11 +63,10 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     ref.read(_otpLoadingProvider.notifier).state = true;
     try {
       final api = ref.read(apiClientProvider);
-      final resp = await api.post('/api/auth/verify-otp', data: {
+      final data = await api.post('/api/auth/verify-otp', data: {
         'mobile': widget.mobile,
         'otp': _otp,
       });
-      final data = resp.data as Map<String, dynamic>;
       const storage = FlutterSecureStorage();
       await storage.write(key: 'access_token', value: data['accessToken'] as String?);
       await storage.write(key: 'user_id', value: data['userId']?.toString());

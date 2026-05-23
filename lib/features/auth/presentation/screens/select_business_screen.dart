@@ -37,8 +37,7 @@ class _BusinessMembership {
 final _businessListProvider =
     FutureProvider<List<_BusinessMembership>>((ref) async {
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/auth/me');
-  final data = resp.data as Map<String, dynamic>;
+  final data = await api.get('/api/auth/me');
   final memberships = data['businesses'] as List<dynamic>? ?? [];
   return memberships
       .map((e) => _BusinessMembership.fromJson(e as Map<String, dynamic>))

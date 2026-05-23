@@ -66,9 +66,8 @@ final _itemSearchQueryProvider = StateProvider<String>((ref) => '');
 
 final itemCategoriesProvider = FutureProvider<List<String>>((ref) async {
   final api = ref.read(apiClientProvider);
-  final resp =
+  final data =
       await api.get('/api/items/categories');
-  final data = resp.data as Map<String, dynamic>;
   return ((data['data'] as List<dynamic>?) ?? [])
       .map((e) => e.toString())
       .toList();
@@ -84,8 +83,7 @@ final itemListProvider = FutureProvider<List<ItemSummary>>((ref) async {
     if (category != null) 'category': category,
     if (search.isNotEmpty) 'search': search,
   };
-  final resp = await api.get('/api/items', queryParameters: params);
-  final data = resp.data as Map<String, dynamic>;
+  final data = await api.get('/api/items', queryParameters: params);
   final list = data['data'] as List<dynamic>? ?? [];
   return list
       .map((e) => ItemSummary.fromJson(e as Map<String, dynamic>))

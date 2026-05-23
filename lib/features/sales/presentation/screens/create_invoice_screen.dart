@@ -88,9 +88,8 @@ final _partySearchProvider =
     FutureProvider.family<List<_Party>, String>((ref, q) async {
   if (q.isEmpty) return [];
   final api = ref.read(apiClientProvider);
-  final resp =
+  final data =
       await api.get('/api/parties', queryParameters: {'search': q, 'limit': 10});
-  final data = resp.data as Map<String, dynamic>;
   final list = data['data'] as List<dynamic>? ?? [];
   return list
       .map((e) => _Party.fromJson(e as Map<String, dynamic>))
@@ -101,12 +100,11 @@ final _itemSearchProvider =
     FutureProvider.family<List<_Item>, String>((ref, q) async {
   if (q.isEmpty) return [];
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/items', queryParameters: {
+  final data = await api.get('/api/items', queryParameters: {
     'search': q,
     'limit': 10,
     'type': 'PRODUCT,SERVICE',
   });
-  final data = resp.data as Map<String, dynamic>;
   final list = data['data'] as List<dynamic>? ?? [];
   return list
       .map((e) => _Item.fromJson(e as Map<String, dynamic>))
@@ -264,8 +262,7 @@ class _CreateInvoiceScreenState extends ConsumerState<CreateInvoiceScreen> {
             'amount': double.tryParse(_paymentAmountCtrl.text) ?? 0,
           },
       };
-      final resp = await api.post('/api/invoices', data: payload);
-      final data = resp.data as Map<String, dynamic>;
+      final data = await api.post('/api/invoices', data: payload);
       final id = data['id']?.toString() ?? data['invoice']?['id']?.toString();
       if (!mounted) return;
       context.pushReplacement('/invoices/$id');
