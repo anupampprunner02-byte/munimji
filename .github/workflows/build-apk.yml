@@ -24,6 +24,12 @@ jobs:
           channel: stable
           cache: true
 
+      # Allow Gradle and pub to authenticate with GitHub (prevents "terminal prompts disabled" error)
+      - name: Configure git credentials
+        run: |
+          git config --global url."https://${{ github.token }}@github.com/".insteadOf "https://github.com/"
+          git config --global credential.helper store
+
       # Save our actual source code before flutter create overwrites lib/
       - name: Backup source files
         run: |
@@ -64,18 +70,22 @@ jobs:
           echo "sdk.dir=$ANDROID_SDK_ROOT" >> android/local.properties
 
       - name: Install dependencies
+        env:
+          PUB_HOSTED_URL: https://pub.dev
         run: flutter pub get
 
       - name: Analyze (non-fatal)
         run: flutter analyze --no-fatal-infos || true
 
       - name: Build release APK
+        env:
+          GIT_TERMINAL_PROMPT: 0
         run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: munimji-apk
+          name: munimji-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
 
@@ -99,6 +109,10 @@ jobs:
           flutter-version: '3.24.5'
           channel: stable
           cache: true
+
+      - name: Configure git credentials
+        run: |
+          git config --global url."https://${{ github.token }}@github.com/".insteadOf "https://github.com/"
 
       - name: Backup source files
         run: |

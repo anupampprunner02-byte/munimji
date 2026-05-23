@@ -12,76 +12,37 @@ dependencies:
 
   # State Management
   flutter_riverpod: ^2.4.9
-  riverpod_annotation: ^2.3.3
 
   # Navigation
   go_router: ^13.1.0
 
   # Networking
   dio: ^5.4.0
-  retrofit: ^4.1.0
-
-  # Local Database (SQLite offline-first)
-  drift: ^2.15.0
-  drift_flutter: ^0.1.0
-  sqlite3_flutter_libs: ^0.5.20
 
   # Secure Storage
   flutter_secure_storage: ^9.0.0
-  shared_preferences: ^2.2.2
 
   # PDF Generation
   pdf: ^3.10.8
   printing: ^5.12.0
 
   # UI Components
-  flutter_svg: ^2.0.9
-  cached_network_image: ^3.3.1
-  image_picker: ^1.0.7
-  file_picker: ^6.1.1
   fl_chart: ^0.67.0
   intl: ^0.19.0
-  lottie: ^3.0.0
-  shimmer: ^3.0.0
-  fluttertoast: ^8.2.4
   pin_code_fields: ^8.0.1
 
-  # Barcode / QR
-  qr_flutter: ^4.1.0
-  mobile_scanner: ^4.0.0
-
   # Utils
-  uuid: ^4.3.3
   path_provider: ^2.1.2
   share_plus: ^7.2.2
   url_launcher: ^6.2.5
-  connectivity_plus: ^6.0.2
-  local_auth: ^2.1.8
-  permission_handler: ^11.3.0
-  image_cropper: ^5.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-  build_runner: ^2.4.8
-  drift_dev: ^2.15.0
-  riverpod_generator: ^2.3.9
-  retrofit_generator: ^8.1.0
-  json_serializable: ^6.7.1
-  json_annotation: ^4.8.1
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
-    - assets/fonts/
     - assets/lottie/
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
