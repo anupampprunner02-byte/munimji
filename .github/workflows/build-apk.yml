@@ -3,50 +3,99 @@ name: Build MunimJi APK
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch:   # allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
+  # ── Job 1: Build APK (for testing / sideload) ────────────────────────────────
   build-apk:
-    name: Build Release APK
+    name: Build Debug APK
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.44.0'
           channel: stable
           cache: true
 
-      - name: Get dependencies
-        run: flutter pub get
+      - name: Create local.properties
+        run: |
+          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+          echo "sdk.dir=$ANDROID_SDK_ROOT" >> android/local.properties
 
-      - name: Analyze code
-        run: flutter analyze --no-fatal-infos || true
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos || true
+      - run: flutter build apk --release --no-tree-shake-icons
 
-      - name: Build release APK
-        run: flutter build apk --release --no-tree-shake-icons
-
-      - name: Rename APK
-        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/munimji-release.apk
-
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: munimji-apk
-          path: build/app/outputs/flutter-apk/munimji-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
 
-      - name: Show APK info
+  # ── Job 2: Build & Publish AAB to Play Store ─────────────────────────────────
+  deploy-playstore:
+    name: Deploy to Play Store
+    runs-on: ubuntu-latest
+    # Only deploy when pushing to main AND secrets are configured
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: build-apk
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+
+      - name: Create local.properties
         run: |
-          ls -lh build/app/outputs/flutter-apk/
-          echo "APK built successfully! Download from Actions > Artifacts section."
+          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+          echo "sdk.dir=$ANDROID_SDK_ROOT" >> android/local.properties
+
+      # Decode the keystore from GitHub Secret (base64 encoded)
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+
+      # Create key.properties file for Gradle signing
+      - name: Create key.properties
+        run: |
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=keystore.jks
+          EOF
+
+      - run: flutter pub get
+
+      # Build AAB (Android App Bundle) — required by Play Store
+      - name: Build release AAB
+        run: flutter build appbundle --release --no-tree-shake-icons
+
+      # Upload AAB to Play Store internal testing track
+      - name: Upload to Play Store (Internal Testing)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.munimji.app
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: internal          # internal → alpha → beta → production
+          status: completed
+          releaseName: "v${{ github.run_number }}"
+          changesNotSentForReview: false
