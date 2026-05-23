@@ -63,8 +63,7 @@ final invoiceListProvider =
     if (filter != 'ALL') 'status': filter,
     if (search.isNotEmpty) 'search': search,
   };
-  final resp = await api.get('/api/invoices', queryParameters: params);
-  final data = resp.data as Map<String, dynamic>;
+  final data = await api.get('/api/invoices', queryParameters: params);
   final list = data['data'] as List<dynamic>? ?? [];
   return list
       .map((e) => InvoiceSummary.fromJson(e as Map<String, dynamic>))

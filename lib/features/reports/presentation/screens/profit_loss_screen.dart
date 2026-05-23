@@ -105,11 +105,11 @@ final profitLossProvider =
     FutureProvider.autoDispose<ProfitLossData>((ref) async {
   final (from, to) = ref.watch(_plDateRangeProvider);
   final api = ref.read(apiClientProvider);
-  final resp = await api.get('/api/reports/profit-loss', queryParameters: {
+  final data = await api.get('/api/reports/profit-loss', queryParameters: {
     'from': Formatters.isoDate(from),
     'to': Formatters.isoDate(to),
   });
-  return ProfitLossData.fromJson(resp.data as Map<String, dynamic>);
+  return ProfitLossData.fromJson(data);
 });
 
 // Placeholder data for charts when API fails or loading

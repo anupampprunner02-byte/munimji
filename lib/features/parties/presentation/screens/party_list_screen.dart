@@ -58,8 +58,7 @@ final partyListProvider =
     if (type != 'ALL') 'type': type,
     if (search.isNotEmpty) 'search': search,
   };
-  final resp = await api.get('/api/parties', queryParameters: params);
-  final data = resp.data as Map<String, dynamic>;
+  final data = await api.get('/api/parties', queryParameters: params);
   final list = data['data'] as List<dynamic>? ?? [];
   return list
       .map((e) => PartySummary.fromJson(e as Map<String, dynamic>))
