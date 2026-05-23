@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  # ── Job 1: Build APK (for testing / sideload) ────────────────────────────────
   build-apk:
-    name: Build Debug APK
+    name: Build Release APK
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -20,31 +20,69 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.0'
+          flutter-version: '3.24.5'
           channel: stable
           cache: true
+
+      # Save our actual source code before flutter create overwrites lib/
+      - name: Backup source files
+        run: |
+          cp -r lib /tmp/munimji_lib
+          cp pubspec.yaml /tmp/munimji_pubspec.yaml
+
+      # flutter create generates proper v2 Android embedding files
+      - name: Generate Flutter Android boilerplate
+        run: |
+          flutter create \
+            --project-name munimji \
+            --org com.munimji \
+            --platforms android \
+            --overwrite \
+            .
+
+      # Restore our actual app source (flutter create overwrites lib/ with demo)
+      - name: Restore source files
+        run: |
+          rm -rf lib
+          cp -r /tmp/munimji_lib lib
+          cp /tmp/munimji_pubspec.yaml pubspec.yaml
+
+      # Update the package name to com.munimji.app (flutter create makes com.munimji.munimji)
+      - name: Fix package name
+        run: |
+          sed -i 's/com\.munimji\.munimji/com.munimji.app/g' android/app/build.gradle
+          sed -i 's/com\.munimji\.munimji/com.munimji.app/g' android/app/src/main/AndroidManifest.xml
+          find android/app/src/main/kotlin -name "*.kt" -exec sed -i 's/com\.munimji\.munimji/com.munimji.app/g' {} +
+          # Fix kotlin directory name
+          mkdir -p android/app/src/main/kotlin/com/munimji/app
+          find android/app/src/main/kotlin/com/munimji/munimji -name "*.kt" -exec mv {} android/app/src/main/kotlin/com/munimji/app/ \; 2>/dev/null || true
+          rm -rf android/app/src/main/kotlin/com/munimji/munimji 2>/dev/null || true
 
       - name: Create local.properties
         run: |
           echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
           echo "sdk.dir=$ANDROID_SDK_ROOT" >> android/local.properties
 
-      - run: flutter pub get
-      - run: flutter analyze --no-fatal-infos || true
-      - run: flutter build apk --release --no-tree-shake-icons
+      - name: Install dependencies
+        run: flutter pub get
 
-      - name: Upload APK
+      - name: Analyze (non-fatal)
+        run: flutter analyze --no-fatal-infos || true
+
+      - name: Build release APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: munimji-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
 
-  # ── Job 2: Build & Publish AAB to Play Store ─────────────────────────────────
+  # ── Deploy to Play Store (runs only after APK build succeeds) ─────────────
   deploy-playstore:
     name: Deploy to Play Store
     runs-on: ubuntu-latest
-    # Only deploy when pushing to main AND secrets are configured
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: build-apk
 
@@ -58,21 +96,42 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.0'
+          flutter-version: '3.24.5'
           channel: stable
           cache: true
+
+      - name: Backup source files
+        run: |
+          cp -r lib /tmp/munimji_lib
+          cp pubspec.yaml /tmp/munimji_pubspec.yaml
+
+      - name: Generate Flutter Android boilerplate
+        run: |
+          flutter create --project-name munimji --org com.munimji --platforms android --overwrite .
+
+      - name: Restore source files
+        run: |
+          rm -rf lib
+          cp -r /tmp/munimji_lib lib
+          cp /tmp/munimji_pubspec.yaml pubspec.yaml
+
+      - name: Fix package name
+        run: |
+          sed -i 's/com\.munimji\.munimji/com.munimji.app/g' android/app/build.gradle
+          sed -i 's/com\.munimji\.munimji/com.munimji.app/g' android/app/src/main/AndroidManifest.xml
+          find android/app/src/main/kotlin -name "*.kt" -exec sed -i 's/com\.munimji\.munimji/com.munimji.app/g' {} +
+          mkdir -p android/app/src/main/kotlin/com/munimji/app
+          find android/app/src/main/kotlin/com/munimji/munimji -name "*.kt" -exec mv {} android/app/src/main/kotlin/com/munimji/app/ \; 2>/dev/null || true
+          rm -rf android/app/src/main/kotlin/com/munimji/munimji 2>/dev/null || true
 
       - name: Create local.properties
         run: |
           echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
           echo "sdk.dir=$ANDROID_SDK_ROOT" >> android/local.properties
 
-      # Decode the keystore from GitHub Secret (base64 encoded)
       - name: Decode keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
 
-      # Create key.properties file for Gradle signing
       - name: Create key.properties
         run: |
           cat > android/key.properties <<EOF
@@ -82,20 +141,18 @@ jobs:
           storeFile=keystore.jks
           EOF
 
-      - run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-      # Build AAB (Android App Bundle) — required by Play Store
       - name: Build release AAB
         run: flutter build appbundle --release --no-tree-shake-icons
 
-      # Upload AAB to Play Store internal testing track
       - name: Upload to Play Store (Internal Testing)
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
           packageName: com.munimji.app
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
-          track: internal          # internal → alpha → beta → production
+          track: internal
           status: completed
           releaseName: "v${{ github.run_number }}"
-          changesNotSentForReview: false
